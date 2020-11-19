@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,20 +9,20 @@ import { AuthService } from 'src/app/services/auth.service';
 export class LoginComponent implements OnInit {
   mensajeError: string;
 
-  constructor( public authService: AuthService) { 
+  constructor(public authService: AuthService) {
     this.mensajeError = '';
   }
 
   ngOnInit(): void {
   }
 
-  login (username: string, password: string): boolean {
+  login(username: string, password: string): boolean {
     this.mensajeError = '';
     if (!this.authService.login(username, password)) {
       this.mensajeError = 'Login incorrecto.';
       setTimeout(function() {
-        this.mensajeError = ''; 
-      }.bind(this), 2500)
+        this.mensajeError = '';
+      }.bind(this), 2500);
     }
     return false;
   }

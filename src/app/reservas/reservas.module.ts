@@ -12,9 +12,9 @@ import { ReservasApiClientService } from './reservas-api-client.service';
   imports: [
     CommonModule,
     ReservasRoutingModule
-  ],  
+  ],
   providers: [
     ReservasApiClientService
-  ]
+  ],
 })
 export class ReservasModule { }

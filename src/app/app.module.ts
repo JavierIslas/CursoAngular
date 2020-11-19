@@ -1,125 +1,66 @@
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, Inject, Injectable, InjectionToken, NgModule } from '@angular/core';
+import { APP_INITIALIZER, Injectable, InjectionToken, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StoreModule as NgRxStoreModule, ActionReducerMap, Store} from '@ngrx/store';
+import { StoreModule as NgRxStoreModule, ActionReducerMap, Store } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { StoreDevtoolsModule} from '@ngrx/store-devtools';
-import { HttpClient, HttpClientModule, HttpHeaders, HttpRequest } from '@angular/common/http';
-import Dexie from 'dexie';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgxMapboxGLModule } from 'ngx-mapbox-gl';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { AppRoutingModule } from './app-routing.module';
+import { HttpClientModule, HttpClient, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
+
 import { AppComponent } from './app.component';
 import { DestinoViajeComponent } from './components/destino-viaje/destino-viaje.component';
 import { ListaDestinosComponent } from './components/lista-destinos/lista-destinos.component';
 import { DestinoDetalleComponent } from './components/destino-detalle/destino-detalle.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormDestinoViajeComponent } from './components/form-destino-viaje/form-destino-viaje.component';
-import { 
-         DestinosViajesState, 
-         reducerDestinosViajes,
-         intializeDestinosViajesState,
-         DestinosViajesEffects, 
-         InitMyDataAction
-        } from './models/destinos-viajes-states.model';
+import { DestinosViajesState, reducerDestinosViajes, intializeDestinosViajesState, DestinosViajesEffects, InitMyDataAction } from './models/destinos-viajes-state.model';
 import { LoginComponent } from './components/login/login/login.component';
 import { ProtectedComponent } from './components/protected/protected/protected.component';
-import { AuthService } from './services/auth.service';
 import { UsuarioLogueadoGuard } from './guards/usuario-logueado/usuario-logueado.guard';
+import { AuthService } from './services/auth.service';
 import { VuelosComponentComponent } from './components/vuelos/vuelos-component/vuelos-component.component';
 import { VuelosMainComponentComponent } from './components/vuelos/vuelos-main-component/vuelos-main-component.component';
 import { VuelosMasInfoComponentComponent } from './components/vuelos/vuelos-mas-info-component/vuelos-mas-info-component.component';
 import { VuelosDetalleComponentComponent } from './components/vuelos/vuelos-detalle-component/vuelos-detalle-component.component';
+import { CommonModule } from '@angular/common';
 import { ReservasModule } from './reservas/reservas.module';
-import { DestinoViaje } from './models/destino-viaje.model';
+
+import Dexie from 'dexie';
+import { DestinoViaje } from './models/destino-viajes.model';
+
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { from, Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
+import { EspiameDirective } from './espiame.directive';
+import { TrackearClickDirective } from './trackear-click.directive';
 
-
-//app config
+// app config
 export interface AppConfig {
-  apiEndpoint: string;
+  apiEndpoint: String;
 }
 const APP_CONFIG_VALUE: AppConfig = {
   apiEndpoint: 'http://localhost:3000'
 };
 export const APP_CONFIG = new InjectionToken<AppConfig>('app.config');
-// fin app config
 
-
-// init routing
-export const childerRoutesVuelos: Routes = [
-  { path: '', redirectTo: 'main', pathMatch: 'full'},
-  { path: 'main', component: VuelosMainComponentComponent},
-  { path: 'mas-info', component: VuelosMasInfoComponentComponent},
-  { path: ':id', component: VuelosDetalleComponentComponent},
-];
-
-const routes: Routes = [
-  {path: '', redirectTo: 'home', pathMatch: 'full'},
-  {path: 'home', component: ListaDestinosComponent},
-  {path: 'destino/:id', component: DestinoDetalleComponent},
-  {path: 'login', component: LoginComponent },
-  {
-    path: 'protected',
-    component: ProtectedComponent,
-    canActivate: [ UsuarioLogueadoGuard ]
-  },
-  {
-    path: 'vuelos',
-    component: VuelosComponentComponent,
-    canActivate: [ UsuarioLogueadoGuard ],
-    children: childerRoutesVuelos
-  }
-];
-// fin init routing
-
-// redux init
-export interface AppState {
-  destinos: DestinosViajesState;
-}
-
-const reducers: ActionReducerMap<AppState> = {
-  destinos: reducerDestinosViajes
-};
-
-let reducersInitialState = {
-  destinos: intializeDestinosViajesState()
-};
-// redux fin init
-
-//app init
+// app init
 export function init_app(appLoadService: AppLoadService): () => Promise<any> {
   return () => appLoadService.intializeDestinosViajesState();
 }
-@Injectable()
-class AppLoadService {
-  constructor(private store: Store<AppState>, private http: HttpClient) {}
-  async intializeDestinosViajesState(): Promise<any> {
-    const headers: HttpHeaders = new HttpHeaders({'X-API-TOKEN': 'token-seguridad'});
-    const req = new HttpRequest('GET', APP_CONFIG_VALUE.apiEndpoint + '/my', { headers: headers });
-    const response: any = await this.http.request(req).toPromise();
-    this.store.dispatch(new InitMyDataAction(response.body));
-  }
-}
-//fin app init
 
 // dexie db
 export class Translation {
-  constructor(public id: number, public lang: string, public key: string, public value: string){}
+  constructor(public id: number, public lang: string, public key: string, public value: string) { }
 }
-
-
-@Injectable({
-  providedIn: 'root'
-})
 export class MyDatabase extends Dexie {
   destinos: Dexie.Table<DestinoViaje, number>;
   translations: Dexie.Table<Translation, number>;
-  constructor () {
+  constructor() {
     super('MyDatabase');
     this.version(1).stores({
-      destinos: '++id, nombre, imagenUrl',
+      destinos: '++id, nombre, imagenUrl'
     });
     this.version(2).stores({
       destinos: '++id, nombre, imagenUrl',
@@ -129,43 +70,92 @@ export class MyDatabase extends Dexie {
 }
 
 export const db = new MyDatabase();
-// fin dexie db
 
-// i18n init
+@Injectable()
+class AppLoadService {
+  constructor(private store: Store<AppState>, private http: HttpClient) { }
+  async intializeDestinosViajesState(): Promise<any> {
+    const headers: HttpHeaders = new HttpHeaders({ 'X-API-TOKEN': 'token-seguridad' });
+    const req = new HttpRequest('GET', APP_CONFIG_VALUE.apiEndpoint + '/my', { headers: headers });
+    const response: any = await this.http.request(req).toPromise();
+    this.store.dispatch(new InitMyDataAction(response.body));
+  }
+}
+
+// i18n ini
 class TranslationLoader implements TranslateLoader {
-  constructor(private http: HttpClient) {}
-  
+  constructor(private http: HttpClient) { }
+
   getTranslation(lang: string): Observable<any> {
-    const promise =  db.translations
-                       .where('lang')
-                       .equals(lang)
-                       .toArray()
-                       .then(results => {
-                                          if (results.length === 0) {
-                                            return this.http
-                                              .get<Translation[]>(APP_CONFIG_VALUE.apiEndpoint + '/api/translation?lang=' + lang)
-                                              .toPromise()
-                                              .then(apiResults => {
-                                                db.translations.bulkAdd(apiResults);
-                                                return apiResults;
-                                              });
-                                          }
-                                          return results;
-                                        }).then((traducciones) => {
-                                          console.log('traducciones cargadas: ');
-                                          console.log(traducciones);
-                                          return traducciones;
-                                        }).then((traducciones) => {
-                                          return traducciones.map((t) => ({ [t.key]: t.value }));
-                                        });
+    const promise = db.translations
+      .where('lang')
+      .equals(lang)
+      .toArray()
+      .then(results => {
+        if (results.length === 0) {
+          return this.http
+            .get<Translation[]>(APP_CONFIG_VALUE.apiEndpoint + '/api/translation?lang=' + lang)
+            .toPromise()
+            .then(apiResults => {
+              db.translations.bulkAdd(apiResults);
+              return apiResults;
+            });
+        }
+        return results;
+      }).then((traducciones) => {
+        console.log('traducciones cargadas:');
+        console.log(traducciones);
+        return traducciones;
+      }).then((traducciones) => {
+        return traducciones.map((t) => ({ [t.key]: t.value }));
+      });
     return from(promise).pipe(flatMap((elems) => from(elems)));
   }
 }
 
-function HttpLoaderfactory(http: HttpClient) {
+function HttpLoaderFactory(http: HttpClient) {
   return new TranslationLoader(http);
 }
-// fin i18n 
+
+//rutas anidadas o hijas
+export const childrenRoutesVuelos: Routes = [
+  { path: '', redirectTo: 'main', pathMatch: 'full' },
+  { path: 'main', component: VuelosMainComponentComponent },
+  { path: 'mas-info', component: VuelosMasInfoComponentComponent },
+  { path: ':id', component: VuelosDetalleComponentComponent },
+];
+const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: ListaDestinosComponent },
+  { path: "destino", component: DestinoDetalleComponent },
+  { path: 'destino/:id', component: DestinoDetalleComponent },
+  //{path: 'destino', component:DestinoDetalleComponent},
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'protected',
+    component: ProtectedComponent,
+    canActivate: [UsuarioLogueadoGuard]
+  },
+  {
+    path: 'vuelos',
+    component: VuelosComponentComponent,
+    canActivate: [UsuarioLogueadoGuard],
+    children: childrenRoutesVuelos
+  }
+];
+
+//Redux init
+export interface AppState {
+  destinos: DestinosViajesState;
+}
+
+const reducers: ActionReducerMap<AppState> = {
+  destinos: reducerDestinosViajes
+}
+
+let reducersInitialState = {
+  destinos: intializeDestinosViajesState()
+}
 
 @NgModule({
   declarations: [
@@ -179,33 +169,43 @@ function HttpLoaderfactory(http: HttpClient) {
     VuelosComponentComponent,
     VuelosMainComponentComponent,
     VuelosMasInfoComponentComponent,
-    VuelosDetalleComponentComponent
- 
+    VuelosDetalleComponentComponent,
+    EspiameDirective,
+    TrackearClickDirective
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule,
     RouterModule.forRoot(routes),
-    NgRxStoreModule.forRoot(reducers, { initialState: reducersInitialState }),
+    NgRxStoreModule.forRoot(reducers, {
+      initialState: reducersInitialState,
+      runtimeChecks: {
+        strictStateImmutability: false,
+        strictActionImmutability: false
+      }
+    }),
     EffectsModule.forRoot([DestinosViajesEffects]),
     StoreDevtoolsModule.instrument(),
-    AppRoutingModule,
     ReservasModule,
+    HttpClientModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: (HttpLoaderfactory),
+        useFactory: (HttpLoaderFactory),
         deps: [HttpClient]
       }
-    })
+    }),
+    NgxMapboxGLModule,
+    BrowserAnimationsModule
   ],
   providers: [
-    AuthService, UsuarioLogueadoGuard,
+    AuthService,
+    UsuarioLogueadoGuard,
     { provide: APP_CONFIG, useValue: APP_CONFIG_VALUE },
     AppLoadService,
-    { provide: APP_INITIALIZER, useFactory: init_app, deps: [AppLoadService], multi: true},
+    { provide: APP_INITIALIZER, useFactory: init_app, deps: [AppLoadService], multi: true },
     MyDatabase
   ],
   bootstrap: [AppComponent]
