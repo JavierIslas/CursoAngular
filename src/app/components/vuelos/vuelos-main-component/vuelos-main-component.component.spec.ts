@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VuelosMainComponentComponent } from './vuelos-main-component.component';
 
@@ -6,12 +6,12 @@ describe('VuelosMainComponentComponent', () => {
   let component: VuelosMainComponentComponent;
   let fixture: ComponentFixture<VuelosMainComponentComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [ VuelosMainComponentComponent ]
     })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(VuelosMainComponentComponent);

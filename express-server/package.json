@@ -2,11 +2,11 @@
   "name": "express-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "julian david gomez granda",
+  "author": "Edwin Alcivar",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "angular-whishlist-simple": {
+    "angular-wishlist": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/angular-whishlist-simple",
+            "outputPath": "dist/angular-wishlist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -62,18 +62,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "angular-whishlist-simple:build"
+            "browserTarget": "angular-wishlist:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "angular-whishlist-simple:build:production"
+              "browserTarget": "angular-wishlist:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "angular-whishlist-simple:build"
+            "browserTarget": "angular-wishlist:build"
           }
         },
         "test": {
@@ -110,19 +110,19 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "angular-whishlist-simple:serve"
+            "devServerTarget": "angular-wishlist:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "angular-whishlist-simple:serve:production"
+              "devServerTarget": "angular-wishlist:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "angular-whishlist-simple",
+  "defaultProject": "angular-wishlist",
   "cli": {
-    "analytics": false
+    "analytics": "040ede3b-eccb-48c9-9e65-6d7c7caf0a3b"
   }
 }
